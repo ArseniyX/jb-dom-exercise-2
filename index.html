@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>
+        Exercise phase 1
+    </title>
+    <style>
+        body {
+            padding: 30px;
+        }
+
+        .pair label {
+            min-width: 100px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .pair select,
+        .pair input {
+            display: inline-block
+        }
+
+        .items {
+            border: 1px solid black;
+            padding: 5px 0;
+            text-align: center;
+        }
+
+        .header {
+            margin-top: 30px;
+            display: grid;
+            grid-template-columns: 5% repeat(5, 17%) 10%;
+        }
+
+        .list-item {
+            padding: 5px 0;
+            display: grid;
+            grid-template-columns: 5% repeat(5, 17%) 10%;
+        }
+
+        .settings {
+            width: 25px;
+            margin: 0 7px;
+            padding: 0;
+        }
+
+        .mod {
+            border: 1px solid black;
+        }
+
+
+        input {
+            color: black;
+            border: 1px solid black;
+            background-color: white;
+            text-align: center;
+        }
+
+        .enabled {
+            border: 1px solid green;
+            background-color: rgb(207, 252, 211);
+        }
+    </style>
+</head>
+
+<body>
+
+    <form>
+        <div class="pair">
+            <label class="caption">id</label>
+            <input class="data" type="text" name="id">
+        </div>
+        <div class="pair">
+            <label class="caption">First Name</label>
+            <input class="data" type="text" name="firstName">
+        </div>
+        <div class="pair">
+
+            <label class="caption">Last Name</label>
+            <input class="data" type="text" name="laststName">
+        </div>
+        <div class="pair">
+            <label class="caption">Profile Url</label>
+            <input class="data" type="text" name="profileUrl">
+        </div>
+        <div class="pair">
+            <label class="caption">Gender</label>
+            <input type="radio" id="male" name="gender" value="male" checked> <span for="male">Male</span>
+            <input type="radio" id="female" name="gender" value="female"> <span for="female">Female</span>
+        </div>
+        <div class="pair">
+            <label class="caption">Hobby</label>
+            <select name="hobi" class="data">
+                <option selected>
+                    Select Hobby
+                </option>
+                <option value="biking">
+                    Biking
+                </option>
+                <option value="running">
+                    Running
+                </option>
+                <option value="swimming">
+                    Swimming
+                </option>
+            </select>
+        </div>
+        <input type="reset" onclick="add()" value="Add" />
+    </form>
+    <div id="list"></div>
+    <script>
+        const users = []
+
+        function showTable() {
+            const labels = document.querySelectorAll("label")
+
+            const headerContainer = document.createElement("div")
+            headerContainer.classList.add("header")
+            loop(labels.length, function (i) {
+                headerContainer.append(addItem(labels[i].innerHTML))
+                if (labels.length - 1 === i) {
+                    headerContainer.append(addItem("settings"))
+                }
+
+            })
+            list.append(headerContainer)
+        }
+
+        function addItem(element, className = "items") {
+            const item = document.createElement("div")
+            item.append(element)
+            item.classList.add(className)
+
+            return item
+        }
+
+        function addInput(element, className = "items", anotherClass, a, b) {
+            const item = document.createElement("input")
+            item.value = (element)
+            item.classList.add(className)
+            item.disabled = true
+
+            if (a === 4 || a === 5) {
+                //:To-do 
+            }
+            
+            item.onchange = function (e) {
+                users[item.parentElement.id][a] = e.target.value
+                console.log(a)
+            }
+            return item
+        }
+
+        function loop(length, action) {
+            for (let i = 0; i < length; i++) {
+                action(i)
+            }
+        }
+
+        function addClass(arr, className) {
+            loop(arr.length, function (i) {
+                arr[i].classList.add(className)
+            })
+
+        }
+
+        function getParentId(element) {
+            return element.parentElement.parentElement.parentElement.id
+        }
+
+        function changeItems() {
+            const edit = document.createElement("button")
+            edit.innerHTML = "✎"
+            edit.onclick = function () {
+                render()
+                const elements = document.querySelectorAll("input.item-" + getParentId(edit))
+                loop(elements.length, function (i) {
+                    elements[i].disabled = false
+                    elements[i].classList.add("enabled")
+                })
+            }
+            const del = document.createElement("button")
+            del.innerHTML = "X"
+            del.onclick = function () {
+                users.splice(getParentId(del), 1)
+                render()
+            }
+            const save = document.createElement("button")
+            save.onclick = function () {
+                render()
+            }
+            save.innerHTML = "💾"
+
+            addClass([edit, del, save], "settings")
+
+            const buttons = document.createElement("div")
+            buttons.append(edit, del, save)
+            return buttons
+        }
+
+        function clear() {
+            list.innerHTML = ""
+            showTable()
+        }
+
+        showTable()
+
+        function add() {
+            const formData = new FormData(document.querySelector('form'))
+            let user = []
+            for (let pair of formData) {
+                user.push(pair[1])
+            }
+            user.push(changeItems())
+            users.push(user)
+            render()
+            user = []
+        }
+
+        function render() {
+            clear()
+            loop(users.length, function (a) {
+                const userContainer = document.createElement("div")
+                userContainer.classList.add("list-item")
+                loop(users[a].length, function (b) {
+
+                    if (users[a].length - 1 !== b) {
+                        userContainer.append(addInput(users[a][b], "item-" + a, a, b))
+                    } else {
+                        userContainer.append(addItem(users[a][b], "mod"))
+                    }
+
+                })
+                userContainer.id = a
+                list.append(userContainer)
+            })
+        }
+    </script>
+</body>
+
+</html>
